@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-	<title>Simple retirement calculator for Indians</title>
+  <title>Simple retirement calculator</title>
 
     <!-- Bootstrap -->
 <!-- Latest compiled and minified CSS -->
@@ -16,11 +16,11 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
 
-	</head>
-	<body>
+  </head>
+  <body>
 
 
-<h1 class="text-center">Retirement calculator for Indians</h1>
+<h1 class="text-center">Retirement calculator</h1>
 
 <div class="col-md-12">
 
@@ -99,16 +99,22 @@
 </div>
 
 <div class="col-md-10 col-md-offset-1">
+  <div id="chart"></div>
+</div>
+
+<div class="col-md-10 col-md-offset-1">
 <table id="results" class="table table-bordered table-striped">
 <thead><tr><th>Age</th><th>Corpus</th><th>Income</th><th>Expenses</th><th>Withdrawal rate</th></tr></thead>
 </table>
 </div>
 
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
     <script type="text/javascript">
+       google.load('visualization', '1.1', {packages: ['line']});
+
        function calculate () {
          var age = $('#age').val()*1.0;
          var ret = $('#retirement').val()*1.0;
@@ -127,20 +133,28 @@
 
          $('#results tr.calc').remove();
 
+         var data = new google.visualization.DataTable();
+         data.addColumn('number', 'Age');
+         data.addColumn('number', 'Corpus');
+         data.addColumn('number', 'Income');
+         data.addColumn('number', 'Expense');
+
+
+
        for (;age<life;age++) {
 
-	   if (age<ret) {
-	     investments *= (1.0+reta/100.0);
-	     investments += 12*(income-expense);
-	     income *= (1.0+raise/100.0);
-	     expense *= (1.0+infa/100.0);
-	   }
+     if (age<ret) {
+       investments *= (1.0+reta/100.0);
+       investments += 12*(income-expense);
+       income *= (1.0+raise/100.0);
+       expense *= (1.0+infa/100.0);
+     }
 
-	   else {
-	     income = 0;
-	     investments *= (1.0+retr/100.0);
-	     investments -= 12*(expense);
-	     expense *= (1.0+infr/100.0);
+     else {
+       income = 0;
+       investments *= (1.0+retr/100.0);
+       investments -= 12*(expense);
+       expense *= (1.0+infr/100.0);
         }
 
         if (investments >= 0) {
@@ -149,14 +163,36 @@
            $('#results').append ('<tr class="calc danger"><td>'+(age+1)+'</td><td>'+Math.round(investments).toLocaleString()+'</td><Td>'+Math.round(income*12).toLocaleString()+'</td><Td>'+Math.round(expense*12).toLocaleString()+'</td><td>'+Math.round(1200*expense/investments)+'%</td></tr>');
 
         }
-	 }
 
 
-     }
-    </script>
+      data.addRows([
+        [age, Math.round(investments) > 0 ? Math.round (investments) : 0, Math.round(income*12), Math.round(expense*12)],
+      ]);
+
+        }
+
+
+      var options = {
+        chart: {
+          title: 'Withdrawal of investment'
+        },
+        width: 800,
+        height: 300,
+        axes: {
+          x: {
+            0: {side: 'bottom'}
+          }
+        }
+      };
+
+      var chart = new google.charts.Line(document.getElementById('chart'));
+
+      chart.draw(data, options);
+    }
+  </script>
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-	</body>
+  </body>
 </html>
